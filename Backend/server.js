@@ -8,26 +8,33 @@ const eventRoutes = require("./routes/eventRoutes");
 
 const app = express();
 
-app.use(cors());
+// ✅ MIDDLEWARES (TOP)
+app.use(cors({
+  origin: "*",
+}));
 app.use(express.json());
 
+// ✅ ROUTES
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 
-// health check (IMPORTANT)
+// ✅ HEALTH CHECK (Render-ku IMPORTANT)
 app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
 });
 
-// 🔴 IMPORTANT FIX
+// ✅ PORT (Render uses process.env.PORT)
 const PORT = process.env.PORT || 10000;
 
-// 🔴 SAFE MongoDB connect
+// ✅ MONGODB CONNECT
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB Connected");
-    console.log("JWT secret loaded:", process.env.JWT_SECRET ? "YES" : "NO");
+    console.log(
+      "JWT secret loaded:",
+      process.env.JWT_SECRET ? "YES" : "NO"
+    );
 
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
@@ -35,5 +42,5 @@ mongoose
   })
   .catch((err) => {
     console.error("MongoDB connection failed:", err.message);
-    process.exit(1); // ❗ important for Render logs
+    process.exit(1);
   });

@@ -12,24 +12,31 @@ const Register = () => {
     e.preventDefault();
 
     try {
-      // ✅ REGISTER API CALL
       const res = await API.post("/auth/register", {
         name,
         email,
         password,
       });
 
-      // ✅ STORE TOKEN & USER
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      // ✅ backend response correct-aa irundhaa
+      if (res.data && res.data.token) {
+        localStorage.setItem("token", res.data.token);
 
-      alert("Registered successfully");
+        // user object irundhaa mattum store pannum
+        if (res.data.user) {
+          localStorage.setItem("user", JSON.stringify(res.data.user));
+        }
 
-      // ✅ GO TO HOME
-      navigate("/");
+        alert("Registered successfully 🎉");
+        navigate("/");
+      } else {
+        alert("Registration failed ❌");
+      }
     } catch (err) {
-      console.error(err);
-      alert("Registration failed");
+      console.error("Register error:", err.response?.data || err.message);
+      alert(
+        err.response?.data?.message || "Registration failed ❌"
+      );
     }
   };
 
@@ -39,6 +46,7 @@ const Register = () => {
         <h2>Register</h2>
 
         <input
+          type="text"
           placeholder="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -63,7 +71,6 @@ const Register = () => {
 
         <button type="submit">Register</button>
 
-        {/* 🔙 BACK BUTTON */}
         <button
           type="button"
           className="back-btn"
